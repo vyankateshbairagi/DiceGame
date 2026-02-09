@@ -13,8 +13,9 @@ const NumberSel = ({setError, error, selectedNumber, setSelectedNumber, disabled
 
   return (
     <SelectNum>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      <div className="flex">
+      <SectionTitle>Choose Your Number</SectionTitle>
+      {error && <ErrorMessage><span className="icon">⚠️</span> {error}</ErrorMessage>}
+      <NumberGrid>
         {array.map((value, i) => (
           <Box 
             key={i}
@@ -22,11 +23,10 @@ const NumberSel = ({setError, error, selectedNumber, setSelectedNumber, disabled
             onClick={() => numberSelectorHandler(value)}
             disabled={disabled}
           >
-            {value}
+            <span className="number">{value}</span>
           </Box>
         ))}
-      </div>
-      <Instructions>Select Number</Instructions> 
+      </NumberGrid>
     </SelectNum>
   );
 };
@@ -35,67 +35,109 @@ export default NumberSel;
 
 const SelectNum = styled.div`
   display: flex;
-  align-items: end;
   flex-direction: column;
-  animation: slideIn 0.5s ease-out 0.2s both;
-  
-  .flex {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-  }
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 `;
 
-const ErrorMessage = styled.p`
-  font-size: 16px;
-  font-weight: 500;
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-  padding: 10px 20px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  animation: shake 0.5s ease;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-`;
-
-const Instructions = styled.p`
-  font-size: 20px;
+const SectionTitle = styled.h2`
+  font-size: 24px;
   font-weight: 700;
   color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin: 0;
+  text-align: center;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 `;
 
-const Box = styled.div`
-  height: 72px;
-  width: 72px;
+const ErrorMessage = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  padding: 12px 24px;
   border-radius: 15px;
+  margin: 0;
+  animation: shake 0.5s ease;
+  box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+  
+  .icon {
+    font-size: 20px;
+  }
+`;
+
+const NumberGrid = styled.div`
   display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 28px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const Box = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   background: ${props => props.isSelected 
-    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+    ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' 
     : 'rgba(255, 255, 255, 0.95)'};
-  color: ${props => props.isSelected ? 'white' : '#333'};
-  border: 2px solid ${props => props.isSelected ? 'transparent' : 'rgba(255, 255, 255, 0.5)'};
+  border: 3px solid ${props => props.isSelected ? '#fbbf24' : 'rgba(255, 255, 255, 0.5)'};
   box-shadow: ${props => props.isSelected 
-    ? '0 8px 25px rgba(102, 126, 234, 0.6)' 
-    : '0 4px 15px rgba(0, 0, 0, 0.1)'};
+    ? '0 12px 30px rgba(251, 191, 36, 0.5), inset 0 -2px 10px rgba(0, 0, 0, 0.1)' 
+    : '0 6px 20px rgba(0, 0, 0, 0.15)'};
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: ${props => props.disabled ? 0.5 : 1};
+  opacity: ${props => props.disabled ? 0.6 : 1};
+  position: relative;
   
-  &:hover {
-    transform: ${props => props.disabled ? 'none' : props.isSelected ? 'scale(1.1)' : 'translateY(-5px)'};
-    box-shadow: ${props => props.disabled ? 'none' : props.isSelected 
-      ? '0 12px 35px rgba(102, 126, 234, 0.8)' 
-      : '0 8px 25px rgba(0, 0, 0, 0.2)'};
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 18px;
+    padding: 3px;
+    background: ${props => props.isSelected 
+      ? 'linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24)' 
+      : 'transparent'};
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: ${props => props.isSelected ? 1 : 0};
+    animation: ${props => props.isSelected ? 'pulse 2s ease-in-out infinite' : 'none'};
   }
   
-  &:active {
-    transform: ${props => props.disabled ? 'none' : 'scale(0.95)'};
+  .number {
+    font-weight: 800;
+    font-size: 32px;
+    color: ${props => props.isSelected ? 'white' : '#333'};
+    text-shadow: ${props => props.isSelected ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none'};
+  }
+  
+  &:hover:not([disabled]) {
+    transform: ${props => props.isSelected ? 'scale(1.15) rotate(5deg)' : 'translateY(-8px) scale(1.05)'};
+    box-shadow: ${props => props.isSelected 
+      ? '0 15px 40px rgba(251, 191, 36, 0.6)' 
+      : '0 12px 30px rgba(0, 0, 0, 0.25)'};
+  }
+  
+  &:active:not([disabled]) {
+    transform: scale(0.95);
+  }
+  
+  @media (max-width: 480px) {
+    width: 70px;
+    height: 70px;
+    
+    .number {
+      font-size: 28px;
+    }
   }
 `;
